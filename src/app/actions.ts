@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { feedings, subscribers } from "@/db/schema";
 import { notifyHousemates } from "@/lib/push";
@@ -16,6 +17,33 @@ export type SubscribeState = {
   ok: boolean;
   message: string;
 };
+
+export async function deleteFeeding(id: number): Promise<{ ok: boolean }> {
+  try {
+    const [row] = await db
+      .select()
+      .from(feedings)
+      .where(eq(feedings.id, id))
+      .limit(1);
+    if (!row) return { ok: true }; // already gone
+
+    // Remove the evidence photo from Blob first so we don't orphan it.
+    if (row.photoUrl) {
+      try {
+        await del(row.photoUrl);
+      } catch (err) {
+        console.error("Failed to delete blob photo:", err);
+      }
+    }
+
+    await db.delete(feedings).where(eq(feedings.id, id));
+    revalidatePath("/");
+    return { ok: true };
+  } catch (err) {
+    console.error("Failed to delete feeding:", err);
+    return { ok: false };
+  }
+}
 
 // Pragmatic email check — good enough to catch typos without being strict.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
