@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FatCat 🐱
 
-## Getting Started
+A dead-simple feeding tracker for our cat. Tap one button to log that the cat's
+been fed, optionally attach an evidence photo, and your housemates get a push
+notification so nobody double-feeds.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+| Concern         | Tech                                              |
+| --------------- | ------------------------------------------------- |
+| Framework       | Next.js 16 (App Router) + React 19                |
+| Hosting         | Vercel (Fluid Compute)                            |
+| Database        | Neon Postgres via `@neondatabase/serverless`      |
+| ORM / migrations| Drizzle ORM + drizzle-kit                         |
+| Photo storage   | Vercel Blob                                       |
+| Notifications   | Web Push (VAPID) + a service worker               |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **`src/app/page.tsx`** — server component. Loads recent feedings from Neon and
+  renders the button + history.
+- **`src/app/actions.ts`** — the `logFeeding` Server Action. Uploads the photo to
+  Vercel Blob, inserts the feeding row, and fans out push notifications. No REST
+  layer needed.
+- **`src/lib/push.ts`** — sends Web Push notifications to every subscribed
+  housemate and prunes dead subscriptions.
+- **`src/components/`** — `FeedForm` (the button + photo), `NotificationToggle`
+  (opt in/out of push), `RelativeTime` (timezone-correct "x mins ago").
+- **`public/sw.js`** — service worker that displays incoming push notifications.
+- **`src/db/`** — Drizzle schema (`feedings`, `push_subscriptions`) and the
+  lazily-initialized Neon client.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local development
 
-## Learn More
+1. **Install deps** (already done if you scaffolded):
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Create `.env.local`** from the template and fill in the values:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   cp .env.example .env.local
+   ```
 
-## Deploy on Vercel
+3. **Provision a Neon database.** Either create one in the
+   [Neon console](https://console.neon.tech) or, on Vercel, add the **Neon**
+   Marketplace integration to the project — then `vercel env pull .env.local`
+   to grab `DATABASE_URL`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Generate VAPID keys** for Web Push (once):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run gen:vapid
+   ```
+
+   Copy the `publicKey` into `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `privateKey` into
+   `VAPID_PRIVATE_KEY` in `.env.local`.
+
+5. **Set up a Vercel Blob store** and put its `BLOB_READ_WRITE_TOKEN` in
+   `.env.local` (auto-provisioned once you add a Blob store on Vercel).
+
+6. **Create the database tables:**
+
+   ```bash
+   npm run db:push     # push the Drizzle schema straight to Neon
+   ```
+
+7. **Run it:**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open http://localhost:3000.
+
+> **Note on notifications locally:** Web Push requires a secure context.
+> `localhost` counts as secure, so push works in local dev — but the photo
+> `capture` camera and installable PWA behaviour shine on a real HTTPS URL
+> (i.e. once deployed).
+
+## Database scripts
+
+| Command               | What it does                                        |
+| --------------------- | --------------------------------------------------- |
+| `npm run db:push`     | Sync the schema to Neon (no migration files)        |
+| `npm run db:generate` | Generate SQL migration files into `./drizzle`       |
+| `npm run db:studio`   | Open Drizzle Studio to browse the data              |
+| `npm run gen:vapid`   | Generate a VAPID keypair for Web Push               |
+
+## Deploying to Vercel
+
+1. Push this repo to GitHub and import it in Vercel.
+2. Add the **Neon** and **Blob** integrations (auto-set `DATABASE_URL` and
+   `BLOB_READ_WRITE_TOKEN`).
+3. Add the three VAPID env vars (`NEXT_PUBLIC_VAPID_PUBLIC_KEY`,
+   `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`) in Project Settings → Environment
+   Variables.
+4. Run `npm run db:push` against the production database once (or wire it into
+   your deploy step).
+5. Deploy. Each housemate opens the URL and taps **Turn on notifications** once.
+
+## Environment variables
+
+See [`.env.example`](.env.example) for the full list and where each comes from.
