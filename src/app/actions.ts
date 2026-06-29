@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { put, del } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { feedings, subscribers } from "@/db/schema";
@@ -86,28 +86,11 @@ export async function logFeeding(
   const food = (formData.get("food") as string | null)?.trim() || null;
   const portion = (formData.get("portion") as string | null)?.trim() || null;
   const note = (formData.get("note") as string | null)?.trim() || null;
-  const photo = formData.get("photo");
-
-  let photoUrl: string | null = null;
-
-  // Upload the evidence photo to Vercel Blob if one was provided.
-  if (photo instanceof File && photo.size > 0) {
-    try {
-      const ext = photo.name.split(".").pop() || "jpg";
-      const blob = await put(`feedings/${Date.now()}.${ext}`, photo, {
-        access: "public",
-        addRandomSuffix: true,
-      });
-      photoUrl = blob.url;
-    } catch (err) {
-      console.error("Blob upload failed:", err);
-      return {
-        ok: false,
-        message:
-          "Couldn't upload the photo. Is BLOB_READ_WRITE_TOKEN configured?",
-      };
-    }
-  }
+  // The photo is uploaded directly to Blob from the browser (see
+  // /api/photo/upload); the action only receives the resulting URL.
+  const photoUrlRaw = (formData.get("photoUrl") as string | null)?.trim();
+  const photoUrl =
+    photoUrlRaw && photoUrlRaw.startsWith("https://") ? photoUrlRaw : null;
 
   try {
     const [row] = await db
