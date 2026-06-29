@@ -4,10 +4,10 @@ import { db } from "@/db";
 import { subscribers } from "@/db/schema";
 
 const apiKey = process.env.RESEND_API_KEY;
-// Sender. Until a custom domain is verified in Resend, the only address that
-// works is `onboarding@resend.dev` (and it can only deliver to your own
-// Resend account email). Override with RESEND_FROM once a domain is verified.
-const from = process.env.RESEND_FROM ?? "FatCat 🐱 <onboarding@resend.dev>";
+// Sender — cat@gvy.ai is a verified Resend domain, so this can deliver to
+// anyone. `|| ` (not `??`) so a blank/sensitive RESEND_FROM falls back to the
+// default instead of sending from an empty address.
+const from = process.env.RESEND_FROM?.trim() || "FatCat <cat@gvy.ai>";
 
 const resend = apiKey ? new Resend(apiKey) : null;
 
