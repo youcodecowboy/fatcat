@@ -47,7 +47,7 @@ export function EmailSignup() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name (optional)"
-          className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-orange-500"
+          className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-600"
         />
         <div className="flex gap-2">
           <input
@@ -55,7 +55,7 @@ export function EmailSignup() {
             type="email"
             required
             placeholder="you@example.com"
-            className="min-w-0 flex-1 rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-orange-500"
+            className="min-w-0 flex-1 rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-600"
           />
           <SubmitButton />
         </div>

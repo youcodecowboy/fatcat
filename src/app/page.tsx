@@ -22,7 +22,7 @@ export default async function Home() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-5 py-8">
       <header className="text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight">FatCat 🐱</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight text-blue-600">FatCat 🐱</h1>
         <p className="mt-1 opacity-70">
           {last ? (
             <>
@@ -71,7 +71,7 @@ export default async function Home() {
                     className="h-14 w-14 shrink-0 rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-2xl">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-2xl">
                     🐱
                   </div>
                 )}

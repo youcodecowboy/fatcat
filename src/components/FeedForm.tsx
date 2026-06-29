@@ -32,8 +32,8 @@ function Pills({
               onClick={() => onChange(opt)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition active:scale-95 ${
                 selected
-                  ? "border-orange-500 bg-orange-500 text-white shadow"
-                  : "border-black/15 hover:border-orange-400"
+                  ? "border-blue-600 bg-blue-600 text-white shadow"
+                  : "border-black/15 hover:border-blue-500"
               }`}
             >
               {opt}
@@ -51,7 +51,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
     <button
       type="submit"
       disabled={pending || disabled}
-      className="w-full rounded-2xl bg-orange-500 px-6 py-5 text-xl font-bold text-white shadow-lg transition active:scale-[0.98] hover:bg-orange-600 disabled:opacity-50"
+      className="w-full rounded-2xl bg-blue-600 px-6 py-5 text-xl font-bold text-white shadow-lg transition active:scale-[0.98] hover:bg-blue-700 disabled:opacity-50"
     >
       {pending ? "Logging…" : disabled ? "Pick who's feeding 👆" : "🍽️  Feed the cat"}
     </button>
@@ -102,7 +102,7 @@ export function FeedForm() {
         <input
           name="note"
           placeholder="e.g. seemed extra hungry"
-          className="rounded-lg border border-black/15 bg-transparent px-3 py-2 outline-none focus:border-orange-500"
+          className="rounded-lg border border-black/15 bg-transparent px-3 py-2 outline-none focus:border-blue-600"
         />
       </label>
 
@@ -113,7 +113,7 @@ export function FeedForm() {
           type="file"
           accept="image/*"
           capture="environment"
-          className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-orange-100 file:px-3 file:py-2 file:text-orange-700"
+          className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-100 file:px-3 file:py-2 file:text-blue-700"
         />
       </label>
 

@@ -43,7 +43,7 @@ function renderHtml(input: FedEmailInput, unsubscribeUrl: string): string {
     : "";
   const details = [input.food, input.portion].filter(Boolean).join(" · ");
   const detailsRow = details
-    ? `<p style="margin:6px 0 0;"><span style="display:inline-block;background:#fff7ed;color:#c2410c;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;">🍽️ ${details}</span></p>`
+    ? `<p style="margin:6px 0 0;"><span style="display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;">🍽️ ${details}</span></p>`
     : "";
   const note = input.note
     ? `<p style="margin:8px 0 0;color:#555;font-style:italic;">“${input.note}”</p>`
@@ -56,7 +56,7 @@ function renderHtml(input: FedEmailInput, unsubscribeUrl: string): string {
     ${detailsRow}
     ${note}
     ${photo}
-    <a href="${appUrl("/")}" style="display:inline-block;margin-top:16px;background:#f97316;color:#fff;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:bold;">Open FatCat</a>
+    <a href="${appUrl("/")}" style="display:inline-block;margin-top:16px;background:#2563eb;color:#fff;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:bold;">Open FatCat</a>
     <hr style="border:none;border-top:1px solid #eee;margin:28px 0 12px;" />
     <p style="font-size:12px;color:#999;margin:0;">
       You're getting this because you joined the FatCat feeding list.
