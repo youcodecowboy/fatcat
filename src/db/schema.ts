@@ -29,6 +29,23 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
     .defaultNow(),
 });
 
+/**
+ * Email mailing list. A housemate opts in with their email; we email them
+ * (via Resend) every time the cat is fed. `unsubscribeToken` backs the
+ * one-click unsubscribe link in every email so we never email someone who
+ * has opted out.
+ */
+export const subscribers = pgTable("subscribers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  unsubscribeToken: uuid("unsubscribe_token").notNull().defaultRandom(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export type Feeding = typeof feedings.$inferSelect;
 export type NewFeeding = typeof feedings.$inferInsert;
 export type PushSubscriptionRow = typeof pushSubscriptions.$inferSelect;
+export type Subscriber = typeof subscribers.$inferSelect;

@@ -3,13 +3,52 @@
 import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
 import { db } from "@/db";
-import { feedings } from "@/db/schema";
+import { feedings, subscribers } from "@/db/schema";
 import { notifyHousemates } from "@/lib/push";
+import { emailSubscribersFed } from "@/lib/email";
 
 export type LogFeedingState = {
   ok: boolean;
   message: string;
 };
+
+export type SubscribeState = {
+  ok: boolean;
+  message: string;
+};
+
+// Pragmatic email check — good enough to catch typos without being strict.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export async function subscribeEmail(
+  _prev: SubscribeState,
+  formData: FormData
+): Promise<SubscribeState> {
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase();
+  const name = (formData.get("name") as string | null)?.trim() || null;
+
+  if (!email || !EMAIL_RE.test(email)) {
+    return { ok: false, message: "That doesn't look like a valid email." };
+  }
+
+  try {
+    await db
+      .insert(subscribers)
+      .values({ email, name })
+      // Already on the list? Just refresh their name — no duplicate, no error.
+      .onConflictDoUpdate({
+        target: subscribers.email,
+        set: { name },
+      });
+    return {
+      ok: true,
+      message: "You're on the list! You'll get an email each time the cat's fed.",
+    };
+  } catch (err) {
+    console.error("Failed to subscribe:", err);
+    return { ok: false, message: "Couldn't sign you up. Please try again." };
+  }
+}
 
 export async function logFeeding(
   _prev: LogFeedingState,
@@ -46,12 +85,16 @@ export async function logFeeding(
       .values({ fedBy, note, photoUrl })
       .returning();
 
-    // Tell the housemates — fire and forget, but await so errors are logged.
-    await notifyHousemates({
-      title: "🐱 FatCat has been fed!",
-      body: note ? `${fedBy}: ${note}` : `Fed by ${fedBy}`,
-      url: "/",
-    });
+    // Notify housemates two ways: web push + email. Run them together; neither
+    // should block the feeding from being recorded if it fails.
+    await Promise.allSettled([
+      notifyHousemates({
+        title: "🐱 FatCat has been fed!",
+        body: note ? `${fedBy}: ${note}` : `Fed by ${fedBy}`,
+        url: "/",
+      }),
+      emailSubscribersFed({ fedBy, note, photoUrl, fedAt: row.fedAt }),
+    ]);
 
     revalidatePath("/");
     return {

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { FeedForm } from "@/components/FeedForm";
 import { NotificationToggle } from "@/components/NotificationToggle";
+import { EmailSignup } from "@/components/EmailSignup";
 import { RelativeTime } from "@/components/RelativeTime";
 import { getRecentFeedings } from "@/lib/feedings";
 
@@ -39,6 +40,8 @@ export default async function Home() {
       </section>
 
       <NotificationToggle />
+
+      <EmailSignup />
 
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide opacity-60">
