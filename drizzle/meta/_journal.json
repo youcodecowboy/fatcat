@@ -15,6 +15,13 @@
       "when": 1782770978491,
       "tag": "0001_massive_morgan_stark",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782771166622,
+      "tag": "0002_friendly_toad_men",
+      "breakpoints": true
     }
   ]
 }

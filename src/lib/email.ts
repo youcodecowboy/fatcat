@@ -23,6 +23,8 @@ export function appUrl(path = "/"): string {
 
 type FedEmailInput = {
   fedBy: string;
+  food: string | null;
+  portion: string | null;
   note: string | null;
   photoUrl: string | null;
   fedAt: Date;
@@ -39,6 +41,10 @@ function renderHtml(input: FedEmailInput, unsubscribeUrl: string): string {
   const photo = input.photoUrl
     ? `<img src="${input.photoUrl}" alt="Evidence the cat was fed" style="width:100%;max-width:480px;border-radius:12px;margin:16px 0;" />`
     : "";
+  const details = [input.food, input.portion].filter(Boolean).join(" · ");
+  const detailsRow = details
+    ? `<p style="margin:6px 0 0;"><span style="display:inline-block;background:#fff7ed;color:#c2410c;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;">🍽️ ${details}</span></p>`
+    : "";
   const note = input.note
     ? `<p style="margin:8px 0 0;color:#555;font-style:italic;">“${input.note}”</p>`
     : "";
@@ -47,6 +53,7 @@ function renderHtml(input: FedEmailInput, unsubscribeUrl: string): string {
   <div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#171717;">
     <h1 style="font-size:28px;margin:0 0 4px;">🐱 FatCat has been fed!</h1>
     <p style="margin:0;color:#555;">Fed by <strong>${input.fedBy}</strong> · ${time}</p>
+    ${detailsRow}
     ${note}
     ${photo}
     <a href="${appUrl("/")}" style="display:inline-block;margin-top:16px;background:#f97316;color:#fff;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:bold;">Open FatCat</a>
@@ -63,6 +70,8 @@ function renderText(input: FedEmailInput, unsubscribeUrl: string): string {
     "🐱 FatCat has been fed!",
     `Fed by ${input.fedBy} at ${input.fedAt.toLocaleString()}`,
   ];
+  const details = [input.food, input.portion].filter(Boolean).join(" · ");
+  if (details) lines.push(details);
   if (input.note) lines.push(`Note: ${input.note}`);
   if (input.photoUrl) lines.push(`Photo: ${input.photoUrl}`);
   lines.push("", `Unsubscribe: ${unsubscribeUrl}`);

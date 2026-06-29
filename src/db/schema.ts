@@ -8,6 +8,8 @@ import { pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
 export const feedings = pgTable("feedings", {
   id: serial("id").primaryKey(),
   fedBy: text("fed_by").notNull(),
+  food: text("food"),
+  portion: text("portion"),
   note: text("note"),
   photoUrl: text("photo_url"),
   fedAt: timestamp("fed_at", { withTimezone: true }).notNull().defaultNow(),

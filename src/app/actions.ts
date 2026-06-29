@@ -55,6 +55,8 @@ export async function logFeeding(
   formData: FormData
 ): Promise<LogFeedingState> {
   const fedBy = (formData.get("fedBy") as string | null)?.trim() || "Someone";
+  const food = (formData.get("food") as string | null)?.trim() || null;
+  const portion = (formData.get("portion") as string | null)?.trim() || null;
   const note = (formData.get("note") as string | null)?.trim() || null;
   const photo = formData.get("photo");
 
@@ -82,18 +84,23 @@ export async function logFeeding(
   try {
     const [row] = await db
       .insert(feedings)
-      .values({ fedBy, note, photoUrl })
+      .values({ fedBy, food, portion, note, photoUrl })
       .returning();
+
+    // e.g. "Wet food · Medium" — used in the push body.
+    const details = [food, portion].filter(Boolean).join(" · ");
 
     // Notify housemates two ways: web push + email. Run them together; neither
     // should block the feeding from being recorded if it fails.
     await Promise.allSettled([
       notifyHousemates({
         title: "🐱 FatCat has been fed!",
-        body: note ? `${fedBy}: ${note}` : `Fed by ${fedBy}`,
+        body: [`${fedBy} fed the cat`, details, note]
+          .filter(Boolean)
+          .join(" — "),
         url: "/",
       }),
-      emailSubscribersFed({ fedBy, note, photoUrl, fedAt: row.fedAt }),
+      emailSubscribersFed({ fedBy, food, portion, note, photoUrl, fedAt: row.fedAt }),
     ]);
 
     revalidatePath("/");

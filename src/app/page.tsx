@@ -77,8 +77,13 @@ export default async function Home() {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{f.fedBy}</p>
+                  {(f.food || f.portion) && (
+                    <p className="text-sm opacity-70">
+                      🍽️ {[f.food, f.portion].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
                   {f.note && (
-                    <p className="truncate text-sm opacity-70">{f.note}</p>
+                    <p className="truncate text-sm opacity-60">{f.note}</p>
                   )}
                   <p className="text-xs opacity-50">
                     <RelativeTime iso={new Date(f.fedAt).toISOString()} />
