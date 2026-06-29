@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Raining-cats confetti: each cat falls from above the viewport to below it,
+   spinning and swaying. Per-instance values come from CSS custom properties
+   set inline (--fall-rotate, --sway). */
+@keyframes cat-fall {
+  0% {
+    transform: translate3d(0, -20vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--sway, 0), 120vh, 0)
+      rotate(var(--fall-rotate, 360deg));
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Respect users who don't want motion — fade in place instead of falling. */
+  @keyframes cat-fall {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}

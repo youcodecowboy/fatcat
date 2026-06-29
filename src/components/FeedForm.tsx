@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { logFeeding, type LogFeedingState } from "@/app/actions";
 import { FEEDERS, FOODS, PORTIONS } from "@/lib/options";
+import { RainingCats } from "@/components/RainingCats";
 
 const initialState: LogFeedingState = { ok: false, message: "" };
 
@@ -63,6 +64,7 @@ export function FeedForm() {
   const [fedBy, setFedBy] = useState("");
   const [food, setFood] = useState<string>(FOODS[0]); // Wet food
   const [portion, setPortion] = useState<string>(PORTIONS[1]); // Medium
+  const [burst, setBurst] = useState(0); // bumps to retrigger the cat rain
   const formRef = useRef<HTMLFormElement>(null);
 
   // Preselect the feeder used last on this device.
@@ -79,14 +81,20 @@ export function FeedForm() {
     if (fedBy) localStorage.setItem("fatcat:name", fedBy);
   }, [fedBy]);
 
-  // Clear the note/photo after a successful log (keep the selections).
+  // On a successful log: clear note/photo (keep selections) and rain the cats.
+  // state.message carries a fresh timestamp each time, so repeated feeds
+  // re-fire this effect and bump the burst counter.
   useEffect(() => {
     if (state.ok) {
       formRef.current?.reset();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setBurst((b) => b + 1);
     }
   }, [state.ok, state.message]);
 
   return (
+    <>
+    <RainingCats trigger={burst} />
     <form ref={formRef} action={formAction} className="flex flex-col gap-5">
       {/* Selections are controlled by state and submitted via hidden inputs. */}
       <input type="hidden" name="fedBy" value={fedBy} />
@@ -130,5 +138,6 @@ export function FeedForm() {
         </p>
       )}
     </form>
+    </>
   );
 }
