@@ -54,3 +54,23 @@ body {
     }
   }
 }
+
+/* Comic "BIG CHONKA" burst: pop in with an overshoot, then settle with a
+   gentle wiggle so it feels alive. */
+@keyframes comic-pop {
+  0% {
+    transform: translate(-50%, -100%) scale(0) rotate(-18deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(-50%, -100%) scale(1.15) rotate(6deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -100%) scale(0.96) rotate(-4deg);
+  }
+  100% {
+    transform: translate(-50%, -100%) scale(1) rotate(-6deg);
+    opacity: 1;
+  }
+}

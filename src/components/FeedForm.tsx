@@ -8,37 +8,81 @@ import { RainingCats } from "@/components/RainingCats";
 
 const initialState: LogFeedingState = { ok: false, message: "" };
 
+// Spiky comic-book "explosion" outline, used for the BIG CHONKA callout.
+const BURST_CLIP =
+  "polygon(50% 0%, 61% 23%, 87% 8%, 79% 36%, 100% 50%, 79% 64%, 87% 92%, 61% 77%, 50% 100%, 39% 77%, 13% 92%, 21% 64%, 0% 50%, 21% 36%, 13% 8%, 39% 23%)";
+
+function ComicCallout({ text }: { text: string }) {
+  const lines = text.split(" ");
+  return (
+    <div
+      aria-hidden
+      className="comic-callout pointer-events-none absolute left-1/2 -top-3 z-30"
+      style={{ animation: "comic-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}
+    >
+      <div className="relative grid place-items-center" style={{ width: 158, height: 128 }}>
+        {/* black outline layer behind a yellow fill = comic outline */}
+        <div className="absolute inset-0 bg-black" style={{ clipPath: BURST_CLIP }} />
+        <div
+          className="absolute bg-yellow-300"
+          style={{ inset: 6, clipPath: BURST_CLIP }}
+        />
+        <span
+          className="relative z-10 text-center leading-[0.85] text-black"
+          style={{ fontFamily: "var(--font-comic), system-ui", fontSize: 26 }}
+        >
+          {lines.map((l, i) => (
+            <span key={i} className="block">
+              {l}
+            </span>
+          ))}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function Pills({
   label,
   options,
   value,
   onChange,
+  callouts,
 }: {
   label: string;
   options: readonly string[];
   value: string;
   onChange: (v: string) => void;
+  callouts?: Record<string, string>;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium">{label}</span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {options.map((opt) => {
           const selected = value === opt;
+          const callout = callouts?.[opt];
+          const big = selected && !!callout; // selected option with a callout grows
           return (
-            <button
-              key={opt}
-              type="button"
-              aria-pressed={selected}
-              onClick={() => onChange(opt)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition active:scale-95 ${
-                selected
-                  ? "border-blue-600 bg-blue-600 text-white shadow"
-                  : "border-black/15 hover:border-blue-500"
-              }`}
-            >
-              {opt}
-            </button>
+            <div key={opt} className="relative">
+              {big && callout && <ComicCallout text={callout} />}
+              <button
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onChange(opt)}
+                className={`rounded-full border font-medium transition active:scale-95 ${
+                  big
+                    ? "scale-110 px-5 py-2.5 text-base font-bold"
+                    : "px-4 py-2 text-sm"
+                } ${
+                  selected
+                    ? "border-blue-600 bg-blue-600 text-white shadow-lg"
+                    : "border-black/15 hover:border-blue-500"
+                }`}
+              >
+                {opt}
+              </button>
+            </div>
           );
         })}
       </div>
@@ -140,7 +184,13 @@ export function FeedForm() {
 
         <Pills label="Who's feeding?" options={FEEDERS} value={fedBy} onChange={setFedBy} />
         <Pills label="Food" options={FOODS} value={food} onChange={setFood} />
-        <Pills label="Portion" options={PORTIONS} value={portion} onChange={setPortion} />
+        <Pills
+          label="Portion"
+          options={PORTIONS}
+          value={portion}
+          onChange={setPortion}
+          callouts={{ Large: "BIG CHONKA" }}
+        />
 
         <label className="flex flex-col gap-1 text-sm font-medium">
           Note <span className="font-normal opacity-60">(optional)</span>
