@@ -38,31 +38,72 @@ function renderHtml(input: FedEmailInput, unsubscribeUrl: string): string {
     day: "numeric",
     month: "short",
   });
-  const photo = input.photoUrl
-    ? `<img src="${input.photoUrl}" alt="Evidence the cat was fed" style="width:100%;max-width:480px;border-radius:12px;margin:16px 0;" />`
-    : "";
   const details = [input.food, input.portion].filter(Boolean).join(" · ");
-  const detailsRow = details
-    ? `<p style="margin:6px 0 0;"><span style="display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;">🍽️ ${details}</span></p>`
-    : "";
-  const note = input.note
-    ? `<p style="margin:8px 0 0;color:#555;font-style:italic;">“${input.note}”</p>`
+
+  // Hero photo (full-bleed at the top of the card) when one was attached.
+  const hero = input.photoUrl
+    ? `<tr><td style="padding:0;">
+         <img src="${input.photoUrl}" alt="Evidence the cat was fed" width="480" style="display:block;width:100%;max-width:480px;height:auto;border:0;" />
+       </td></tr>`
     : "";
 
-  return `
-  <div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#171717;">
-    <h1 style="font-size:28px;margin:0 0 4px;">🐱 FatCat has been fed!</h1>
-    <p style="margin:0;color:#555;">Fed by <strong>${input.fedBy}</strong> · ${time}</p>
-    ${detailsRow}
-    ${note}
-    ${photo}
-    <a href="${appUrl("/")}" style="display:inline-block;margin-top:16px;background:#2563eb;color:#fff;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:bold;">Open FatCat</a>
-    <hr style="border:none;border-top:1px solid #eee;margin:28px 0 12px;" />
-    <p style="font-size:12px;color:#999;margin:0;">
-      You're getting this because you joined the FatCat feeding list.
-      <a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a>.
-    </p>
-  </div>`;
+  const detailsRow = details
+    ? `<tr><td style="padding:14px 28px 0;">
+         <span style="display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600;">🍽️ ${details}</span>
+       </td></tr>`
+    : "";
+
+  const noteRow = input.note
+    ? `<tr><td style="padding:14px 28px 0;">
+         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+           <td style="border-left:3px solid #2563eb;padding:6px 0 6px 14px;color:#555;font-style:italic;font-size:15px;">“${input.note}”</td>
+         </tr></table>
+       </td></tr>`
+    : "";
+
+  return `<!doctype html>
+<html><body style="margin:0;padding:0;background:#eef2f7;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+
+        <!-- Branded header -->
+        <tr><td style="background:#2563eb;padding:22px 28px;">
+          <div style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;">🐱 FatCat</div>
+          <div style="font-size:13px;color:#bfdbfe;margin-top:2px;">The cat has been fed</div>
+        </td></tr>
+
+        ${hero}
+
+        <!-- Headline -->
+        <tr><td style="padding:24px 28px 0;">
+          <h1 style="margin:0;font-size:24px;line-height:1.25;color:#171717;">
+            ${input.fedBy} fed the cat 🎉
+          </h1>
+          <p style="margin:6px 0 0;color:#6b7280;font-size:14px;">${time}</p>
+        </td></tr>
+
+        ${detailsRow}
+        ${noteRow}
+
+        <!-- CTA -->
+        <tr><td style="padding:24px 28px 28px;">
+          <a href="${appUrl("/")}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:12px;font-weight:700;font-size:15px;">Open FatCat →</a>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#f8fafc;border-top:1px solid #eef2f7;padding:18px 28px;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.5;">
+            You're on the FatCat feeding list.
+            <a href="${unsubscribeUrl}" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a>.<br/>
+            FatCat — keeping the cat fed, not over-fed.
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
 }
 
 function renderText(input: FedEmailInput, unsubscribeUrl: string): string {
