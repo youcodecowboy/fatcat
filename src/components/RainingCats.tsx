@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+// The two cat stickers that rain down. Each drop randomly picks one.
+const SOURCES = ["/cat-confetti.webp", "/cat-confetti-2.png"] as const;
+
 type Drop = {
   id: number;
+  src: string; // which sticker
   left: number; // vw position
   size: number; // px
   duration: number; // s
@@ -17,6 +21,7 @@ const COUNT = 28;
 function makeDrops(seed: number): Drop[] {
   return Array.from({ length: COUNT }, (_, i) => ({
     id: seed * 1000 + i,
+    src: SOURCES[Math.floor(Math.random() * SOURCES.length)],
     left: Math.random() * 100,
     size: 36 + Math.random() * 52,
     duration: 2.2 + Math.random() * 1.8,
@@ -73,7 +78,7 @@ export function RainingCats({ trigger }: { trigger: number }) {
           {imgOk ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src="/cat-confetti.webp"
+              src={d.src}
               alt=""
               width={d.size}
               height={d.size}
