@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FeedForm } from "@/components/FeedForm";
 import { NotificationToggle } from "@/components/NotificationToggle";
@@ -47,8 +48,16 @@ export default async function Home({
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-5 py-8">
       <header className="text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-blue-600">
-          FatCat 🐱
+        <h1 className="flex items-center justify-center gap-2 text-4xl font-extrabold tracking-tight text-blue-600">
+          FatCat
+          <Image
+            src="/blue-ai.png"
+            alt="FatCat mascot"
+            width={48}
+            height={56}
+            priority
+            className="inline-block h-12 w-auto"
+          />
         </h1>
         <p className="mt-1 opacity-70">
           {last ? (
